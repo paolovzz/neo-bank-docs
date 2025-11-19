@@ -1,0 +1,406 @@
+openapi: "3.0.3"
+info:
+  title: Carta - OpenAPI 3.0
+  version: 1.0.0-SNAPSHOT
+
+tags:
+  - name: Carta
+    description: Operazioni relative alle carte
+
+paths:
+
+  /carte:
+    post:
+      tags:
+        - Carta
+      summary: Crea una nuova carta
+      operationId: creaCarta
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreaCartaRequest"
+      responses:
+        201:
+          description: Carta creata correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        422:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /carte/{numeroCarta}:
+    get:
+      tags:
+        - Carta
+      summary: Recupera informazioni della carta tramite numero
+      operationId: recuperaCartaDaNumeroCarta
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: numeroCarta
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Informazioni carta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartaInfoResponse"
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso non autorizzato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Carta non trovata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /carte/iban/{iban}:
+    get:
+      tags:
+        - Carta
+      summary: Recupera la lista delle carte associate all'IBAN
+      operationId: recuperaCartaDaIban
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: iban
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Lista delle carte associate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DatiCartaResponse"
+        404:
+          description: Nessuna carta trovata per IBAN
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /carte/soglia-pagamenti-giornaliera:
+    put:
+      tags:
+        - Carta
+      summary: Imposta soglia pagamenti giornaliera della carta
+      operationId: impostaSogliaPagamentiGiornaliera
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImpostaSogliaPagamentiRequest"
+      responses:
+        204:
+          description: Soglia aggiornata correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso non autorizzato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Carta non trovata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /carte/soglia-pagamenti-mensile:
+    put:
+      tags:
+        - Carta
+      summary: Imposta soglia pagamenti mensile della carta
+      operationId: impostaSogliaPagamentiMensile
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImpostaSogliaPagamentiRequest"
+      responses:
+        204:
+          description: Soglia aggiornata correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso non autorizzato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Carta non trovata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /carte/abilitazione-pagamenti-online:
+    put:
+      tags:
+        - Carta
+      summary: Imposta l’abilitazione ai pagamenti online
+      operationId: impostaAbilitazionePagamentiOnline
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImpostaAbilitazionePagamentiOnlineRequest"
+      responses:
+        204:
+          description: Abilitazione aggiornata correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso non autorizzato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Carta non trovata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /carte/stato-carta:
+    put:
+      tags:
+        - Carta
+      summary: Imposta lo stato della carta (attiva/disattivata)
+      operationId: impostaStatoCarta
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImpostaStatoCartaRequest"
+      responses:
+        204:
+          description: Stato aggiornato correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso non autorizzato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Carta non trovata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    CreaCartaRequest:
+      type: object
+      required:
+        - iban
+      properties:
+        iban:
+          type: string
+          example: "IT60X0542811101000000123456"
+    ImpostaSogliaPagamentiRequest:
+      type: object
+      required:
+        - numeroCarta
+        - iban
+        - nuovaSoglia
+      properties:
+        numeroCarta:
+          type: string
+        iban:
+          type: string
+        nuovaSoglia:
+          type: integer
+    ImpostaAbilitazionePagamentiOnlineRequest:
+      type: object
+      required:
+        - numeroCarta
+        - iban
+        - abilitazionePagamentiOnline
+      properties:
+        numeroCarta:
+          type: string
+        iban:
+          type: string
+        abilitazionePagamentiOnline:
+          type: boolean
+    ImpostaStatoCartaRequest:
+      type: object
+      required:
+        - numeroCarta
+        - iban
+        - statoCarta
+      properties:
+        numeroCarta:
+          type: string
+        iban:
+          type: string
+        statoCarta:
+          type: boolean
+
+    CartaInfoResponse:
+      type: object
+      required:
+        - sogliaPagamentiGiornaliera
+        - sogliaPagamentiMensile
+        - dataEmissione
+        - dataScadenza
+        - statoCarta
+        - iban
+        - usernameCliente
+        - numeroCarta
+        - abilitazionePagamentiOnline
+        - intestatario
+      properties:
+        sogliaPagamentiGiornaliera:
+          type: integer
+          example: 500
+        sogliaPagamentiMensile:
+          type: integer
+          example: 2000
+        dataEmissione:
+          type: string
+          format: date-time
+          example: "2025-01-10T12:00:00"
+        dataScadenza:
+          type: string
+          format: date-time
+          example: "2030-01-10T12:00:00"
+        statoCarta:
+          type: string
+          example: "ATTIVA"
+        iban:
+          type: string
+          example: "IT60X0542811101000000123456"
+        usernameCliente:
+          type: string
+          example: "luca.damico87"
+        numeroCarta:
+          type: string
+          example: "4539871029384756"
+        abilitazionePagamentiOnline:
+          type: string
+          example: "ABILITATO"
+        intestatario:
+          type: string
+          example: "LUCA DAMICO"
+    DatiCartaResponse:
+      type: object
+      required:
+        - numeroCarta
+        - iban
+        - intestatario
+        - dataScadenza
+      properties:
+        numeroCarta:
+          type: string
+          example: "4539871029384756"
+        iban:
+          type: string
+          example: "IT60X0542811101000000123456"
+        intestatario:
+          type: string
+          example: "LUCA DAMICO"
+        dataScadenza:
+          type: string
+          format: date
+          example: "2030-01-10"
+    ErrorResponse:
+      type: object
+      required:
+        - messaggio
+      properties:
+        messaggio:
+          type: string
+          example: "testo libero"

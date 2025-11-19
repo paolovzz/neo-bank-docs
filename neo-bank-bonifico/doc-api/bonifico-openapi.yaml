@@ -1,0 +1,80 @@
+openapi: "3.0.3"
+info:
+  title: Bonifico - OpenAPI 3.0
+  version: 1.0.0-SNAPSHOT
+  description: API per recuperare informazioni sui bonifici
+
+tags:
+  - name: Bonifico
+    description: Operazioni relative ai bonifici
+
+paths:
+  /bonifici/{idOperazione}:
+    get:
+      tags:
+        - Bonifico
+      summary: Recupera informazioni di un bonifico tramite ID operazione
+      operationId: recuperaBonificoDaId
+      parameters:
+        - name: idOperazione
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del bonifico da recuperare
+      responses:
+        200:
+          description: Bonifico trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BonificoInfoResponse"
+        404:
+          description: Bonifico non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    BonificoInfoResponse:
+      type: object
+      required:
+        - idOperazione
+        - ibanMittente
+        - ibanDestinatario
+        - importo
+        - causale
+      properties:
+        idOperazione:
+          type: string
+          example: "OP123456789"
+        ibanMittente:
+          type: string
+          example: "IT60X0542811101000000123456"
+        ibanDestinatario:
+          type: string
+          example: "IT60X0542811101000000654321"
+        importo:
+          type: number
+          format: double
+          example: 1500.75
+        causale:
+          type: string
+          example: "Pagamento fattura 1234"
+
+    ErrorResponse:
+      type: object
+      required:
+        - messaggio
+      properties:
+        messaggio:
+          type: string
+          example: "messaggio errore"

@@ -1,0 +1,139 @@
+openapi: "3.0.3"
+info:
+  title: Auth - OpenAPI 3.0
+  version: 1.0.0-SNAPSHOT
+
+tags:
+  - name: Auth
+    description: Operazioni di autenticazione e gestione utenti
+
+paths:
+
+  /auth/registra-utente:
+    post:
+      tags:
+        - Auth
+      summary: Registra un nuovo utente
+      operationId: registraUtente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistraUtenteRequest"
+      responses:
+        202:
+          description: Richiesta di registrazione accettata
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login utente
+      operationId: loginUtente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginUtenteRequest"
+      responses:
+        200:
+          description: Login avvenuto con successo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout utente
+      operationId: logoutUtente
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "Bearer <token>"
+      responses:
+        200:
+          description: Logout avvenuto con successo
+
+components:
+  schemas:
+    RegistraUtenteRequest:
+      type: object
+      required:
+        - username
+        - nome
+        - cognome
+        - email
+        - dataNascita
+        - residenza
+        - password
+        - telefono
+        - codiceFiscale
+      properties:
+        username:
+          type: string
+          example: "luca.damico87"
+        nome:
+          type: string
+          example: "Luca"
+        cognome:
+          type: string
+          example: "Damico"
+        email:
+          type: string
+          format: email
+          example: "luca.damico@example.com"
+        dataNascita:
+          type: string
+          format: date
+          example: "1987-05-21"
+        residenza:
+          type: string
+          example: "Via Roma 12, Milano"
+        password:
+          type: string
+          example: "PasswordSicura123!"
+        telefono:
+          type: string
+          example: "+390612345678"
+        codiceFiscale:
+          type: string
+          example: "DMCXLC87E21F205Z"
+
+    LoginUtenteRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "luca.damico87"
+        password:
+          type: string
+          example: "PasswordSicura123!"
+
+    LoginResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ErrorResponse:
+      type: object
+      required:
+        - messaggio
+      properties:
+        messaggio:
+          type: string
+          example: "testo libero"

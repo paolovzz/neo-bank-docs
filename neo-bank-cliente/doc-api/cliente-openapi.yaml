@@ -1,0 +1,242 @@
+openapi: "3.0.3"
+info:
+  title: Cliente - OpenAPI 3.0
+  version: 1.0.0-SNAPSHOT
+
+tags:
+  - name: Cliente
+    description: Operazioni relative al cliente
+
+paths:
+
+  /clienti:
+    get:
+      tags:
+        - Cliente
+      summary: Recupera informazioni del cliente
+      operationId: recuperaClienteDaUsername
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Username autenticato
+      responses:
+        200:
+          description: Informazioni del cliente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteInfoResponse"
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Cliente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /clienti/iban:
+    get:
+      tags:
+        - Cliente
+      summary: Recupera la lista degli IBAN del cliente
+      operationId: recuperaIbanDaUsername
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Username autenticato
+      responses:
+        200:
+          description: Lista di IBAN
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: Cliente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /clienti/residenza:
+    put:
+      tags:
+        - Cliente
+      summary: Aggiorna la residenza del cliente
+      operationId: aggiornaResidenza
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RichiediAggiornamentoResidenzaRequest"
+      responses:
+        204:
+          description: Residenza aggiornata correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /clienti/telefono:
+    put:
+      tags:
+        - Cliente
+      summary: Aggiorna il numero di telefono del cliente
+      operationId: aggiornaTelefono
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RichiediAggiornamentoTelefonoRequest"
+      responses:
+        204:
+          description: Telefono aggiornato correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /clienti/email:
+    put:
+      tags:
+        - Cliente
+      summary: Aggiorna l'email del cliente
+      operationId: aggiornaEmail
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RichiediAggiornamentoEmailRequest"
+      responses:
+        204:
+          description: Email aggiornata correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ClienteInfoResponse:
+      type: object
+      required:
+        - nome
+        - cognome
+        - dataNascita
+        - email
+        - codiceFiscale
+        - telefono
+        - residenza
+        - contiAssociati
+        - carteAssociate
+      properties:
+        nome:
+          type: string
+          example: "Luca"
+        cognome:
+          type: string
+          example: "Damico"
+        dataNascita:
+          type: string
+          format: date
+          example: "1987-05-21"
+        email:
+          type: string
+          format: email
+          example: "luca.damico@example.com"
+        codiceFiscale:
+          type: string
+          example: "DMC LCU 87E21 H501X"
+        telefono:
+          type: string
+          example: "+393491234567"
+        residenza:
+          type: string
+          example: "Via Roma 123, Milano, Italia"
+        contiAssociati:
+          type: array
+          items:
+            type: string
+            example: "IT60X0542811101000000123456"
+        carteAssociate:
+          type: array
+          items:
+            type: string
+            example: "1234-5678-9012-3456"
+
+    RichiediAggiornamentoResidenzaRequest:
+      type: object
+      required:
+        - residenza
+      properties:
+        residenza:
+          type: string
+          example: "Via Torino 45, Torino, Italia"
+
+    RichiediAggiornamentoTelefonoRequest:
+      type: object
+      required:
+        - telefono
+      properties:
+        telefono:
+          type: string
+          example: "+393491234567"
+
+    RichiediAggiornamentoEmailRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: "luca.damico@example.com"
+
+    ErrorResponse:
+      type: object
+      required:
+        - messaggio
+      properties:
+        messaggio:
+          type: string
+          example: "testo libero"

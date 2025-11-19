@@ -1,0 +1,399 @@
+openapi: "3.0.3"
+info:
+  title: Conto Corrente - OpenAPI 3.0
+  version: 1.0.0-SNAPSHOT
+
+tags:
+  - name: Conto Corrente
+    description: Operazioni relative al conto corrente
+
+paths:
+
+  /cc/{iban}:
+    get:
+      tags:
+        - Conto Corrente
+      summary: Recupera informazioni del conto corrente
+      operationId: recuperaContoCorrenteDaIban
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Username autenticato
+        - name: iban
+          in: path
+          required: true
+          schema:
+            type: string
+          description: IBAN del conto
+      responses:
+        200:
+          description: Informazioni del conto corrente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContoCorrenteInfoResponse"
+        404:
+          description: Conto non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso ad iban non associato all'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cc:
+    post:
+      tags:
+        - Conto Corrente
+      summary: Crea un nuovo conto corrente
+      operationId: creaContoCorrente
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Conto corrente creato correttamente
+        422:
+          description: Richiesta non processabile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Non autorizzato
+
+  /cc/soglia-bonifico-giornaliera:
+    put:
+      tags:
+        - Conto Corrente
+      summary: Imposta soglia bonifico giornaliera
+      operationId: impostaSogliaBonificoGiornaliera
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImpostaSogliaBonificoRequest"
+      responses:
+        204:
+          description: Soglia aggiornata correttamente
+        422:
+          description: Richiesta non processabile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Conto non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso ad iban non associato all'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Non autorizzato
+        
+  /cc/soglia-bonifico-mensile:
+    put:
+      tags:
+        - Conto Corrente
+      summary: Imposta soglia bonifico mensile
+      operationId: impostaSogliaBonificoMensile
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImpostaSogliaBonificoRequest"
+      responses:
+        204:
+          description: Soglia aggiornata correttamente
+        422:
+          description: Richiesta non processabile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Conto non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso ad iban non associato all'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cc/predisponi-bonifico:
+    post:
+      tags:
+        - Conto Corrente
+      summary: Predisponi un bonifico
+      operationId: predisponiBonifico
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PredisponiBonificoRequest"
+      responses:
+        202:
+          description: Bonifico predisposto correttamente
+        422:
+          description: Richiesta non processabile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Conto non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso ad iban non associato all'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cc/{iban}/transazioni:
+    get:
+      tags:
+        - Conto Corrente
+      summary: Recupera transazioni del conto
+      operationId: recuperaTransazioni
+      parameters:
+        - name: X-Authenticated-User
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: iban
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: dataCreazioneMin
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dataCreazioneMax
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: tipologiaFlusso
+          in: query
+          schema:
+            $ref: "#/components/schemas/TipologiaFlussoEnum"
+        - name: importoMin
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: importoMax
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: numeroPagina
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: dimensionePagina
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        200:
+          description: Lista transazioni paginata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RispostaPaginataTransazioni"
+        401:
+          description: Non autorizzato
+        404:
+          description: Conto non trovato
+        500:
+          description: Errore di sistema
+
+components:
+  schemas:
+
+    ContoCorrenteInfoResponse:
+      type: object
+      required:
+        - iban
+        - saldoDisponibile
+        - saldoContabile
+        - sogliaBonificiMensile
+        - sogliaBonificiGiornaliera
+        - numeroConto
+        - bic
+        - cab
+        - abi
+      properties:
+        iban:
+          type: string
+          example: "IT60X0542811101000000123456"
+        saldoDisponibile:
+          type: number
+          format: double
+          example: 1500.75
+        saldoContabile:
+          type: number
+          format: double
+          example: 1490.50
+        sogliaBonificiMensile:
+          type: integer
+          example: 5000
+        sogliaBonificiGiornaliera:
+          type: integer
+          example: 1000
+        numeroConto:
+          type: string
+          example: "123456789012"
+        bic:
+          type: string
+          example: "BCITITMM"
+        cab:
+          type: string
+          example: "01234"
+        abi:
+          type: string
+          example: "05428"
+
+    ImpostaSogliaBonificoRequest:
+      type: object
+      required:
+        - iban
+        - nuovaSoglia
+      properties:
+        iban:
+          type: string
+        nuovaSoglia:
+          type: integer
+
+    PredisponiBonificoRequest:
+      type: object
+      required:
+        - ibanMittente
+        - ibanDestinatario
+        - importo
+        - causale
+      properties:
+        ibanMittente:
+          type: string
+        ibanDestinatario:
+          type: string
+        importo:
+          type: number
+          format: double
+        causale:
+          type: string
+
+    TipologiaFlussoEnum:
+      type: string
+      enum: [ENTRATA, USCITA]
+
+    TransazioneResponse:
+      type: object
+      required:
+        - idTransazione
+        - idContoCorrente
+        - idOperazione
+        - importo
+        - iban
+        - dataCreazione
+        - causale
+        - tipologiaFlusso
+      properties:
+        idTransazione:
+          type: string
+          example: "txn-12345"
+        idContoCorrente:
+          type: string
+          example: "cc-98765"
+        idOperazione:
+          type: string
+          example: "op-45678"
+        importo:
+          type: number
+          format: double
+          example: 250.75
+        iban:
+          type: string
+          example: "IT60X0542811101000000123456"
+        dataCreazione:
+          type: string
+          format: date-time
+        causale:
+          type: string
+        tipologiaFlusso:
+          $ref: "#/components/schemas/TipologiaFlussoEnum"
+
+    RispostaPaginataTransazioni:
+      type: object
+      properties:
+        numeroPagina:
+          type: integer
+        dimensionePagina:
+          type: integer
+        totaleRisultati:
+          type: integer
+          format: int64
+        result:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransazioneResponse"
+
+    ErrorResponse:
+      type: object
+      required:
+        - messaggio
+      properties:
+        messaggio:
+          type: string
+          example: "testo libero"
