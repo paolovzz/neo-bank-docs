@@ -1,0 +1,228 @@
+version: "3.9"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://host.docker.internal:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8280:8080"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3.5
+    container_name: keycloak
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  # --- Microservizi Quarkus ---
+  neo-bank-auth:
+    build:
+      context: ./neo-bank-auth
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-auth
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      QUARKUS_OIDC_AUTH_SERVER_URL: http://keycloak:8080/realms/quarkus-app
+      QUARKUS_REST_CLIENT_KEYCLOAK_CLIENT_URL: http://keycloak:8080
+
+  neo-bank-cliente:
+    build:
+      context: ./neo-bank-cliente
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-cliente
+    ports:
+      - "8380:8080"
+    depends_on:
+      - mongodb
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      QUARKUS_MONGODB_CONNECTION_STRING: mongodb://root:root@mongodb:27017/neo-bank-cliente?authSource=admin
+      QUARKUS_MONGODB_DATABASE: neo-bank-cliente
+      QUARKUS_MONGODB_USERNAME: root
+      QUARKUS_MONGODB_PASSWORD: root
+  neo-bank-bonifico:
+    build:
+      context: ./neo-bank-bonifico
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-bonifico
+    ports:
+      - "8480:8080"
+    depends_on:
+      - mongodb
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      QUARKUS_MONGODB_CONNECTION_STRING: mongodb://root:root@mongodb:27017/neo-bank-cliente?authSource=admin
+      QUARKUS_MONGODB_DATABASE: neo-bank-cliente
+      QUARKUS_MONGODB_USERNAME: root
+      QUARKUS_MONGODB_PASSWORD: root
+      QUARKUS_REST_CLIENT_NOTIFICA_CLIENT_URL: http://neo-bank-notifica:8080
+
+  neo-bank-conto-corrente:
+    build:
+      context: ./neo-bank-conto-corrente
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-conto-corrente
+    ports:
+      - "8580:8080"
+    depends_on:
+      - mongodb
+      - neo-bank-cliente
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      QUARKUS_MONGODB_CONNECTION_STRING: mongodb://root:root@mongodb:27017/neo-bank-conto-corrente?authSource=admin
+      QUARKUS_MONGODB_DATABASE: neo-bank-conto-corrente
+      QUARKUS_MONGODB_USERNAME: root
+      QUARKUS_MONGODB_PASSWORD: root
+      QUARKUS_REST_CLIENT_ANAGRAFICA_CLIENTE_URL: http://neo-bank-cliente:8080
+      QUARKUS_REST_CLIENT_BONIFICO_URL: http://neo-bank-bonifico:8080
+
+  neo-bank-ext-system:
+    build:
+      context: ./neo-bank-ext-system
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-ext-system
+    ports:
+      - "8780:8080"
+    depends_on:
+      - mongodb
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+
+  neo-bank-gateway:
+    build:
+      context: ./neo-bank-gateway
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-gateway
+    ports:
+      - "8880:8080"
+    depends_on:
+      - neo-bank-auth
+      - neo-bank-cliente
+      - neo-bank-conto-corrente
+      - neo-bank-carta
+    environment:
+      QUARKUS_REST_CLIENT_AUTH_SERVICE_URL: http://neo-bank-auth:8080
+      QUARKUS_REST_CLIENT_CLIENTE_SERVICE_URL: http://neo-bank-cliente:8080
+      QUARKUS_REST_CLIENT_CONTO_CORRENTE_SERVICE_URL: http://neo-bank-conto-corrente:8080
+      QUARKUS_REST_CLIENT_CARTA_SERVICE_URL: http://neo-bank-carta:8080
+      QUARKUS_OIDC_AUTH_SERVER_URL: http://keycloak:8080/realms/quarkus-app
+
+  neo-bank-carta:
+    build:
+      context: ./neo-bank-carta
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-carta
+    ports:
+      - "8980:8080"
+    depends_on:
+      - neo-bank-conto-corrente
+      - neo-bank-cliente
+    environment:
+      QUARKUS_REST_CLIENT_ANAGRAFICA_CC_URL: http://neo-bank-conto-corrente:8080
+      QUARKUS_REST_CLIENT_ANAGRAFICA_CLIENTE_URL: http://neo-bank-cliente:8080
+
+  neo-bank-notifica:
+    build:
+      context: ./neo-bank-notifica
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: neo-bank-notifica
+    ports:
+      - "8680:8080"
+    depends_on:
+      - mongodb
+      - mailhog
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      QUARKUS_MONGODB_CONNECTION_STRING: mongodb://root:root@mongodb:27017/neo-bank-notifica?authSource=admin
+      QUARKUS_MONGODB_DATABASE: neo-bank-notifica
+      QUARKUS_MONGODB_USERNAME: root
+      QUARKUS_MONGODB_PASSWORD: root
+  # --- Frontend React DEV ---
+  neo-bank-frontend:
+    build:
+      context: ./neo-bank-frontend
+      dockerfile: Dockerfile.dev
+    container_name: neo-bank-frontend
+    ports:
+      - "3000:5173" # Vite default
+    environment:
+      VITE_API_BASE_URL: http://localhost:8880/api/v1
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./neo-bank-frontend:/app
+      - /app/node_modules
+    command: npm run dev
+
+
+      # --- MailHog (simulatore email) ---
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"   # Porta SMTP
+      - "8025:8025"   # Interfaccia web
+    restart: unless-stopped
+
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    ports:
+      - "8888:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  mongodb_data:

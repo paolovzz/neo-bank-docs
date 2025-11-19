@@ -35,6 +35,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ContoCorrenteInfoResponse"
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         404:
           description: Conto non trovato
           content:
@@ -63,14 +69,19 @@ paths:
       responses:
         201:
           description: Conto corrente creato correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         422:
           description: Richiesta non processabile
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        401:
-          description: Non autorizzato
+        
 
   /cc/soglia-bonifico-giornaliera:
     put:
@@ -93,14 +104,8 @@ paths:
       responses:
         204:
           description: Soglia aggiornata correttamente
-        422:
-          description: Richiesta non processabile
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        404:
-          description: Conto non trovato
+        400:
+          description: Input non valido
           content:
             application/json:
               schema:
@@ -111,8 +116,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        401:
-          description: Non autorizzato
+        404:
+          description: Conto non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        422:
+          description: Richiesta non processabile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        
+        
+        
         
   /cc/soglia-bonifico-mensile:
     put:
@@ -135,8 +153,14 @@ paths:
       responses:
         204:
           description: Soglia aggiornata correttamente
-        422:
-          description: Richiesta non processabile
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso ad iban non associato all'utente
           content:
             application/json:
               schema:
@@ -147,8 +171,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        403:
-          description: Accesso ad iban non associato all'utente
+        422:
+          description: Richiesta non processabile
           content:
             application/json:
               schema:
@@ -175,8 +199,14 @@ paths:
       responses:
         202:
           description: Bonifico predisposto correttamente
-        422:
-          description: Richiesta non processabile
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Accesso ad iban non associato all'utente
           content:
             application/json:
               schema:
@@ -187,8 +217,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        403:
-          description: Accesso ad iban non associato all'utente
+        422:
+          description: Richiesta non processabile
           content:
             application/json:
               schema:
@@ -252,16 +282,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RispostaPaginataTransazioni"
-        401:
-          description: Non autorizzato
+        
         404:
           description: Conto non trovato
-        500:
-          description: Errore di sistema
-
+        
 components:
   schemas:
-
     ContoCorrenteInfoResponse:
       type: object
       required:
@@ -336,7 +362,7 @@ components:
 
     TipologiaFlussoEnum:
       type: string
-      enum: [ENTRATA, USCITA]
+      enum: [ACCREDITO, ADDEBITO]
 
     TransazioneResponse:
       type: object

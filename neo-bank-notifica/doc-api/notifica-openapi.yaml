@@ -1,0 +1,76 @@
+openapi: "3.0.3"
+info:
+  title: Notifica Bonifico - OpenAPI 3.0
+  version: 1.0.0-SNAPSHOT
+  description: API per inviare notifiche email relative ai bonifici
+
+tags:
+  - name: Notifica
+    description: Operazioni relative alle notifiche sui bonifici
+
+paths:
+  /notifiche/bonifico/email:
+    post:
+      tags:
+        - Notifica
+      summary: Invia una notifica email relativa a un bonifico
+      operationId: inviaEmailBonifico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InviaEmailRequest"
+      responses:
+        204:
+          description: Email inviata correttamente
+        400:
+          description: Input non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Bonifico non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    InviaEmailRequest:
+      type: object
+      required:
+        - idOperazione
+        - tipoNotifica
+        - ibanDestinatario
+        - importo
+      properties:
+        idOperazione:
+          type: string
+          example: "OP123456789"
+        tipoNotifica:
+          type: string
+          description: Tipo di notifica da inviare
+          enum:
+            - PREDISPOSIZIONE_BONIFICO
+            - APPLICAZIONE_BONIFICO
+            - ANNULLAMENTO_BONIFICO
+            - RICEZIONE_SALDO_PER_BONIFICO
+        ibanDestinatario:
+          type: string
+          example: "IT60X0542811101000000654321"
+        importo:
+          type: number
+          format: double
+          example: 1500.75
+
+    ErrorResponse:
+      type: object
+      required:
+        - messaggio
+      properties:
+        messaggio:
+          type: string
+          example: "messaggio errore"
