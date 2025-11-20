@@ -15,11 +15,14 @@ Per eseguire il software:
 - https://github.com/paolovzz/neo-bank-frontend
 
 
-2) aggiungere il docker compose presente in questo respo
+2) aggiungere il docker compose presente in questo repo
 
-3) aggiungere lo starter.sh presente in questo repo
+3) sempre nella cartella contenente i progetti copiare la directory keycloak, con tutto il suo
+contenuto, presente in questa repo
 
-4) eseguire nel terminale, dentro la directory, il comando './starter.sh'
+4) aggiungere lo starter.sh presente in questo repo
+
+5) eseguire nel terminale, dentro la directory, il comando './starter.sh'
 
 
 

@@ -1,0 +1,72 @@
+{
+  "realm": "quarkus-app",
+  "enabled": true,
+  "accessTokenLifespan": 3600,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespan": 5184000,
+  "clientSessionIdleTimeout": 1800,
+  "clientSessionMaxLifespan": 36000,
+  "refreshTokenMaxReuse": 0,
+  "clientOfflineSessionIdleTimeout": 2592000,
+  "clientOfflineSessionMaxLifespan": 5184000,
+  "actionTokenGeneratedByUserLifespan": 30000,
+  "actionTokenGeneratedByAdminLifespan": 43200,
+
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "realm-admin"
+      ],
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "view-users",
+          "create-client",
+          "manage-realm",
+          "view-realm",
+          "view-events"
+        ]
+      }
+    }
+  ],
+
+  "clients": [
+    {
+      "clientId": "banca-app",
+      "secret": "banca-secret",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"]
+    }
+  ],
+
+  "roles": {
+    "realm": [
+      {
+        "name": "cliente",
+        "description": "Ruolo assegnato agli utenti clienti"
+      }
+    ]
+  }
+}
