@@ -8,7 +8,6 @@ tags:
     description: Operazioni relative al cliente
 
 paths:
-
   /clienti:
     get:
       tags:
@@ -30,7 +29,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClienteInfoResponse"
         400:
-          description: Input non valido
+          description: Inpatch non valido
           content:
             application/json:
               schema:
@@ -41,7 +40,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /clienti/iban:
     get:
       tags:
@@ -70,9 +68,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /clienti/residenza:
-    put:
+    patch:
       tags:
         - Cliente
       summary: Aggiorna la residenza del cliente
@@ -93,14 +90,19 @@ paths:
         204:
           description: Residenza aggiornata correttamente
         400:
-          description: Input non valido
+          description: Inpatch non valido
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
+        404:
+          description: Cliente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /clienti/telefono:
-    put:
+    patch:
       tags:
         - Cliente
       summary: Aggiorna il numero di telefono del cliente
@@ -121,14 +123,20 @@ paths:
         204:
           description: Telefono aggiornato correttamente
         400:
-          description: Input non valido
+          description: Inpatch non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Cliente non trovato
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
   /clienti/email:
-    put:
+    patch:
       tags:
         - Cliente
       summary: Aggiorna l'email del cliente
@@ -149,7 +157,13 @@ paths:
         204:
           description: Email aggiornata correttamente
         400:
-          description: Input non valido
+          description: Inpatch non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Cliente non trovato
           content:
             application/json:
               schema:
@@ -239,4 +253,4 @@ components:
       properties:
         messaggio:
           type: string
-          example: "testo libero"
+          example: "Messaggio di errore dettagliato"
