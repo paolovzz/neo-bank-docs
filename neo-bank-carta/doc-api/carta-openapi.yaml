@@ -293,12 +293,9 @@ components:
       type: object
       required:
         - numeroCarta
-        - iban
         - nuovaSoglia
       properties:
         numeroCarta:
-          type: string
-        iban:
           type: string
         nuovaSoglia:
           type: integer
@@ -306,12 +303,9 @@ components:
       type: object
       required:
         - numeroCarta
-        - iban
         - abilitazionePagamentiOnline
       properties:
         numeroCarta:
-          type: string
-        iban:
           type: string
         abilitazionePagamentiOnline:
           type: boolean
@@ -319,12 +313,9 @@ components:
       type: object
       required:
         - numeroCarta
-        - iban
         - statoCarta
       properties:
         numeroCarta:
-          type: string
-        iban:
           type: string
         statoCarta:
           type: boolean

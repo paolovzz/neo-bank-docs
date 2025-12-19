@@ -29,7 +29,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClienteInfoResponse"
         400:
-          description: Inpatch non valido
+          description: Input non valido
           content:
             application/json:
               schema:
@@ -69,7 +69,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
   /clienti/residenza:
-    patch:
+    put:
       tags:
         - Cliente
       summary: Aggiorna la residenza del cliente
@@ -90,7 +90,7 @@ paths:
         204:
           description: Residenza aggiornata correttamente
         400:
-          description: Inpatch non valido
+          description: Input non valido
           content:
             application/json:
               schema:
@@ -102,7 +102,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
   /clienti/telefono:
-    patch:
+    put:
       tags:
         - Cliente
       summary: Aggiorna il numero di telefono del cliente
@@ -123,7 +123,7 @@ paths:
         204:
           description: Telefono aggiornato correttamente
         400:
-          description: Inpatch non valido
+          description: Input non valido
           content:
             application/json:
               schema:
@@ -136,7 +136,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   /clienti/email:
-    patch:
+    put:
       tags:
         - Cliente
       summary: Aggiorna l'email del cliente
@@ -157,7 +157,7 @@ paths:
         204:
           description: Email aggiornata correttamente
         400:
-          description: Inpatch non valido
+          description: Input non valido
           content:
             application/json:
               schema:
